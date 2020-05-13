@@ -1,0 +1,13 @@
+---
+- name: install reddit-app throught docker
+  hosts: all
+  become: true
+
+  tasks:
+  - name: run docker container
+    docker_container:
+      name: reddit
+      state: started
+      image: xmanchan/otus-reddit:1.0
+      published_ports:
+        - 9292:9292
