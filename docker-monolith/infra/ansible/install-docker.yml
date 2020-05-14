@@ -1,0 +1,67 @@
+---
+# https://docs.docker.com/install/linux/docker-ce/ubuntu/
+- name: Install Docker Engine on Ubuntu
+  hosts: all
+  become: yes
+  tasks:
+
+  - name: Install packages
+    apt:
+      state: present
+      #install_recommend: yes
+      update_cache: yes
+      pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg2
+        - software-properties-common
+        - python-docker
+
+  - name: Add Docker’s official GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker APT repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+      update_cache: yes
+
+  - name: Install Docker
+    apt:
+      name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+      install_recommends: yes
+      update_cache: yes
+
+  - name: Add docker group
+    group:
+      name: docker
+      state: present
+
+  - name: Add appuser to docker group
+    user:
+      name: appuser
+      groups: docker
+      append: yes
+
+  # https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd
+  - name: Create directory for docker config
+    file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+
+  - name: Add config to listen port 2376
+    copy:
+      src: files/dockeroverride.conf
+      dest: /etc/systemd/system/docker.service.d/dockeroverride.conf
+
+  - name: Configure Docker to start on boot
+    systemd: name=docker enabled=yes
+
+  - name: restart docker for changes
+    systemd:
+      state: restarted
+      daemon_reload: yes
+      name: docker
