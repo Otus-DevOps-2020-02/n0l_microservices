@@ -3,6 +3,15 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.16
+
+1. правила написание docker файла
+2. оптимизация docker образов
+3. пазбивка приложения на микросервисы
+4. переопределиение имен хостов в ENV переменных
+5. работа с Alpine Linux
+6. работа с volume
+
 #### ex.15
 
 1. основные команды docker

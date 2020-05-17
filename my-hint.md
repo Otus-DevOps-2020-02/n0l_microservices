@@ -44,6 +44,12 @@ $ docker rmi $(docker images -q)
   - $ docker run -it ubuntu:16.04 bash
   - $ docker run -dt nginx:latest
 
+#### Секреты и чувствительные данные
+
+через ENV не рекомендуют, так как их можно узнать взломавши контейнер либо хост
+
+https://stackoverflow.com/questions/30494050/how-do-i-pass-environment-variables-to-docker-containers
+
 #### Docker machine
 
 **Docker machine на macOS ставится отдельно!**
