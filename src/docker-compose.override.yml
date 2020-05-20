@@ -2,12 +2,30 @@ version: '3.3'
 services:
   ui:
     volumes:
-      - './ui:/app'
+      - ui:/app
     command: puma --debug -w 2
   comment:
     volumes:
-      - './comment:/app'
+      - comment:/app
     command: puma --debug -w 2
   post:
     volumes:
-      - './post-py:/app'
+      - post-py:/app
+
+volumes:
+    ui:
+        driver_opts:
+           type: none
+           device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/ui
+           o: bind
+
+    comment:
+        driver_opts:
+           type: none
+           device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/comment
+           o: bind
+    post-py:
+      driver_opts:
+        type: none
+        device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/post-py
+        o: bind
