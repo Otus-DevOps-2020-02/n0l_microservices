@@ -7,3 +7,5 @@
 *.retry
 # packer
 variables.json
+# docker-compose
+.env

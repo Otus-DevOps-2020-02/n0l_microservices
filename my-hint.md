@@ -1,3 +1,59 @@
+# Docker-compose
+
+Утилита для управления группой контейнеров
+
+https://habr.com/ru/company/otus/blog/337688/
+
+####  установка
+
+pip3 install docker-compose
+
+#### Пример файла
+
+```
+version: '3.3'
+services:
+  post_db:
+    image: mongo:3.2
+    volumes:
+      - post_db:/data/db
+    networks:
+      - back_net
+  ui:
+    build: ./ui
+    image: ${USERNAME}/ui:${VER}
+    ports:
+      - 9292:${EXT_PORT}/tcp
+    networks:
+      - front_net
+  post:
+    build: ./post-py
+    image: ${USERNAME}/post:${VER}
+    networks:
+      - front_net
+      - back_net
+  comment:
+    build: ./comment
+    image: ${USERNAME}/comment:${VER}
+    networks:
+      - front_net
+      - back_net
+
+volumes:
+  post_db:
+
+networks:
+  front_net:
+  back_net:
+  reddit:
+```
+
+Все переменые можно опредедить через export USERNAME=<your-login> или записть в файл .env
+
+В файле docker-compose.override.yml можно вносить изменения (чтобы допустим иметь несколько окружений)
+
+
+
 # Docker
 
 #### Установка
@@ -70,7 +126,15 @@ docker-host
 $ docker-machine ls
 ```
 
+#### Последовательность для запуска ВМ с докером в GCP
 
+- export GOOGLE_PROJECT=_ваш-проект_ (либо создать файл .env)
+- docker-machine create --driver google --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts --google-machine-type n1-standard-1 --google-zone europe-west1-b docker-host
+- docker-machine ls
+- eval $(docker-machine env docker-host)
+- поработали
+- eval $(docker-machine env --unset)
+- docker-machine rm <имя>
 
 # Molecule
 
