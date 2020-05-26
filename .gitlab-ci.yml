@@ -4,6 +4,8 @@ stages:
   - build
   - test
   - review
+  - stage
+  - production
 
 build_job:
   stage: build
@@ -22,12 +24,9 @@ test_unit_job:
   services:
     - mongo:latest
   script:
+    - echo 'Testing 1'
     - ruby simpletest.rb
 
-test_unit_job:
-  stage: test
-  script:
-    - echo 'Testing 1'
 
 test_integration_job:
   stage: test
@@ -42,3 +41,20 @@ deploy_dev_job:
     name: dev
     url: http://dev.example.com
 
+staging:
+  stage: stage
+  when: manual
+  script:
+    - echo 'Deploy'
+  environment:
+    name: stage
+    url: https://beta.example.com
+
+production:
+  stage: production
+  when: manual
+  script:
+    - echo 'Deploy'
+  environment:
+    name: production
+    url: https://example.com
