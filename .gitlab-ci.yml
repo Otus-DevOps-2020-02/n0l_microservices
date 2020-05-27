@@ -1,3 +1,5 @@
+image: ruby:2.4.2
+
 stages:
   - build
   - test
@@ -7,39 +9,34 @@ stages:
 
 build_job:
   stage: build
-  before_script:
-    - echo 'Getting, building and publishing docker-monolith'
   script:
-    - docker info
-    - ls -l
-    - cd ./docker-monolith
-    - ls -l
-    - docker info
-    - docker build -t reddit:latest .
-    - docker images -a
-    - docker login -u $HUB_LOGIN -p $HUB_PASSWORD
-    - docker tag reddit:latest $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID
-    - docker push $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID
-    - docker rmi reddit
+    - echo 'Building'
+
+variables:
+  DATABASE_URL: 'mongodb://mongo/user_posts'
+
+before_script:
+  - cd reddit
+  - bundle install
 
 test_unit_job:
   stage: test
+  services:
+    - mongo:latest
   script:
-    - echo 'Unit tests'
+    - echo 'Testing 1'
+    - ruby simpletest.rb
+
 
 test_integration_job:
   stage: test
   script:
-    - echo 'Integration tests'
+    - echo 'Testing 2'
 
 deploy_dev_job:
   stage: review
   script:
     - echo 'Deploy'
-    - docker login -u $HUB_LOGIN -p $HUB_PASSWORD
-    - docker inspect $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID
-    - if docker ps -a | grep reddit; then docker stop reddit && docker rm reddit; fi
-    - docker run --name reddit -d -p 9292:9292 $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID
   environment:
     name: dev
     url: http://dev.example.com
@@ -64,7 +61,7 @@ staging:
     - echo 'Deploy'
   environment:
     name: stage
-    url: http://beta.example.com
+    url: https://beta.example.com
 
 production:
   stage: production
@@ -75,4 +72,4 @@ production:
     - echo 'Deploy'
   environment:
     name: production
-    url: http://example.com
+    url: https://example.com
