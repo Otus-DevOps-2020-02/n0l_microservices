@@ -1,0 +1,18 @@
+plugin: gcp_compute
+projects:
+  - forward-alchemy-276814
+zones:
+  - europe-west3-a
+auth_kind: serviceaccount
+#service_account_file: /builds/homework/example/serviceacc.json
+service_account_file: /Users/oleg-nov/otus-devops-2020-02/homework/19.practice/n0l_microservices/service_account_key.json
+groups:
+  runner: "'runner' in name"
+hostnames:
+  # List host by name instead of the default public ip
+  - name
+compose:
+  # Set an inventory parameter to use the Public IP address to connect to the host
+  # For Private ip use "networkInterfaces[0].networkIP"
+  ansible_host: networkInterfaces[0].accessConfigs[0].natIP
+  ansible_internal_ip: networkInterfaces[0].networkIP

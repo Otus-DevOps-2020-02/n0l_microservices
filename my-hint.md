@@ -1,3 +1,75 @@
+# GitLab
+
+Комбайн, который позволяет организовать весь процесс разработки, настроить автоматизацию по тестированию и деплою.
+
+Поскольку в каждом проекте есть толлько один файл .gitlab-ci.yml то, там где используется монорепа могут быть проблемы. Так как по существу пайплайны пишутся под один проект
+
+- Каждый проект в Gitlab CI принадлежит к группе проектов
+
+- В проекте может быть определен CI/CD пайплайн
+- Задачи (jobs) входящие в пайплайн должны исполняться на runners
+
+#### Установка
+
+Описана в лекции
+
+#### Runner
+
+По сути площадка для запуска пайплайна
+
+К проекту можно подключить несколько раннеров и на основании тегов рулить какой раннер запускать
+
+#### .gitlab-ci.yml
+
+файл в котором последовательно описываются команды
+
+[Хорошая статься по введению в гитлаб](https://habr.com/ru/company/softmart/blog/309380/)
+
+В гитлаб можно прописать для проета переменные в специальных полях и использовать их как переменные окружения. Есть два типа переменных var и file
+
+Из косяков - передача ssh оказывается сложной, при вытаскивании его из переменной окружения знаки переноса строк заменяются на пробелы. В итоге ssh не цепляется, ansible не отрабатывает.
+
+#### 19 ДЗ*
+
+#### Настроить сборку контейнера с приложением reddit
+
+1. Настроить сборку контейнера с приложением reddit ($CI_PIPELINE_ID - номер запускаемого пайплайна. С новым номером в докерхаб будет выкладываться новый образ.)
+2. Настроить с поднятие сервера в GCP (с помощью **terraform terraform apply --var-file terraform.tfvars.example**)
+3. Задеплоить приложение. C помощью ansible два плейбука
+   - ansible-playbook install-docker.yml
+   - ansible-playbook run-docker-image.yml --extra-vars "version=2.$CI_PIPELINE_ID hub_login=$DOCKER_HUB_LOGIN hub_password=$DOCKER_HUB_PASSWORD"
+
+Вся инфраструктура разворачиватеся при помощи терраформ, провижининг осуществляется при помощи ансибл. Для работы с терраформом был создан сервисный аккаунт. Как создать аккаунт [1](https://cloud.google.com/compute/docs/access/service-accounts), [2](https://www.magellanic-clouds.com/blocks/en/guide/create-gcp-service-account-key/). [Работа с ключом](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
+
+#### Интеграция gitlab со slack 
+
+https://docs.gitlab.com/ee/user/project/integrations/slack.html
+
+#### Автоматизировать регистрацию раннеров на gitlab
+
+1. Развертывание VM происходит при помощи terraform все файлы лежат в папке gitlab-ci
+2. Провижининг происходит при помощи ansible два плейбука
+   - Первый устанавливает docker (ansible-playbook install-docker.yml)
+   - Второй скачивает и запускает и регистрирует образ с раннером  (ansible-playbook register-runner.yml --extra-vars '{"gitlab_ip":"http://35.187.64.198/","token":"Nr4pkYnrxozyty7y4-rU"}')
+
+#### Ссылки
+
+https://docs.gitlab.com/ee/ci/yaml/#before_script-and-after_script
+
+https://docs.gitlab.com/ce/ci/docker/using_docker_build.html
+
+https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+
+https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+
+https://docs.ansible.com/ansible/latest/modules/gitlab_runner_module.html
+
+https://docs.ansible.com/ansible/latest/reference_appendices/special_variables.html
+
+https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
+
+
+
 # Docker-compose
 
 Утилита для управления группой контейнеров
@@ -193,7 +265,7 @@ $ molecule verify Прогнать тесты
 - Provisioners (Ansible, Chef, Puppet, Salt, Shell, …)
 - Плагины
 
-##### Config
+#### Config
 
 Пример конфигурационного файла:
 
@@ -329,6 +401,15 @@ $ ansible --version
       dbserver:
         ansible_host: 104.155.9.218
   ```
+
+Использовать самописный инвентори становится неудобно, поэтому перешел на плагин, оказалось он довольно легко настравается:
+
+```
+[inventory]
+enable_plugins = gcp_compute
+```
+
+
 
 #### ansible.cfg
 
@@ -1033,6 +1114,8 @@ $ packer build -var-file variables.json ubuntu16.json
 ```
 
 Готовый образ можно использовать для быстрого развертывания VM
+
+
 
 # Google Cloud Platform
 

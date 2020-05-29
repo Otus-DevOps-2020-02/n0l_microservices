@@ -1,0 +1,33 @@
+---
+- name: Install and register gitlab-runner container
+  hosts: runner
+  vars:
+    hub_login: username
+    hub_password: password
+    version: latest
+  become: true
+  tasks:
+
+  - name: Pull image
+    docker_image:
+      name: gitlab/gitlab-runner:latest
+      source: pull
+
+  - name: Register gitlab-runner container
+    docker_container:
+      name: gitlab-runner
+      image: gitlab/gitlab-runner:latest
+      command: register --non-interactive --executor "docker" --docker-image alpine:latest --url "{{ gitlab_ip }}" --registration-token "{{ token }}" --description "{{ inventory_hostname }}" --tag-list "docker,aws" --run-untagged="true" --locked="false" --access-level="not_protected"
+      volumes:
+        - /srv/gitlab-runner/config:/etc/gitlab-runner
+
+  - name: Run container
+    docker_container:
+      name: gitlab-runner
+      image: gitlab/gitlab-runner:latest
+      detach: yes
+      restart_policy: always
+      state: started
+      volumes:
+        - /srv/gitlab-runner/config:/etc/gitlab-runner
+        - /var/run/docker.sock:/var/run/docker.sock

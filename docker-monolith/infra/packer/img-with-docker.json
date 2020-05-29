@@ -6,7 +6,7 @@
             "image_name": "docker-host-{{timestamp}}",
             "image_family": "docker-host",
             "source_image_family": "{{user `source_image_family`}}",
-            "zone": "us-central1-f",
+            "zone": "europe-west3-a",
             "ssh_username": "{{user `username`}}",
             "machine_type": "{{user `machine_type`}}"
         }

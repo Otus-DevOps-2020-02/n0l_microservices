@@ -1,7 +1,7 @@
 ---
 # https://docs.docker.com/install/linux/docker-ce/ubuntu/
 - name: Install Docker Engine on Ubuntu
-  hosts: app
+  hosts: runner
   become: yes
   tasks:
 
