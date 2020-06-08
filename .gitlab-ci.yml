@@ -1,0 +1,167 @@
+image: docker:19.03.1
+
+ # Pinning the right Docker version for the service also
+#services:
+#  - docker:19.03.1-dind
+# test
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DATABASE_URL: 'mongodb://mongo/user_posts'
+  DOCKER_TLS_CERTDIR: ""
+
+# image: docker:stable-dind
+
+stages:
+  - build
+  - test
+  - review
+  - stage
+  - production
+
+#before_script:
+#  - apt-get update && apt-get install -y ruby-full ruby-bundler build-essential
+#  - docker login -u $HUB_LOGIN -p $HUB_PASSWORD
+#  - docker info
+#  - cd reddit
+#  - bundle install
+
+build_job:
+  services:
+    - docker:19.03.1-dind
+  stage: build
+  before_script:
+    - echo 'Getting, building and publishing reddit'
+    - docker info
+    - docker login -u $HUB_LOGIN -p $HUB_PASSWORD
+  script:
+    - ls -l
+    - cd ./docker-monolith
+    - docker info
+    - docker build -t reddit:latest .
+    - docker images -a
+    - docker tag reddit:latest $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID
+    - docker push $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID
+    - echo "pushed $HUB_LOGIN/otus-reddit:2.$CI_PIPELINE_ID"
+    - docker rmi reddit
+
+test_unit_job:
+  image: ruby:2.4.2
+  stage: test
+  services:
+    - mongo:latest
+  script:
+    - cd reddit
+    - bundle install
+    - ruby simpletest.rb
+    - echo 'Unit tests'
+
+test_integration_job:
+  stage: test
+  script:
+    - echo 'Integration tests'
+
+deploy_dev_job:
+  image: ubuntu:16.04
+  stage: review
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+  before_script:
+    # install docker and ssh
+    - apt-get update && apt-get install -y sudo openssh-client iputils-ping wget unzip apt-transport-https ca-certificates curl gnupg gnupg-agent software-properties-common
+    # try to install gce sdk by one string
+    - echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && sudo apt-get update -y && sudo apt-get install google-cloud-sdk -y
+    - export PATH=/root/.local/bin:$PATH
+    # before need get gcloud service account
+    # https://console.cloud.google.com/iam-admin/serviceaccounts
+    # https://cloud.google.com/compute/docs/access/service-accounts
+    - echo $GCP_SERVICE_KEY | sudo tee serviceacc.json
+    - pwd
+    - ls -l
+    - chmod -R a-w /builds/homework/example/docker-monolith/infra/ansible
+    - export GOOGLE_CLOUD_KEYFILE_JSON=/builds/homework/example/serviceacc.json
+    - gcloud auth activate-service-account --key-file=serviceacc.json
+
+    #- gcloud config set account 236921286481-compute@developer.gserviceaccount.com
+    #- gcloud compute instances list
+    #- gcloud auth list
+
+    - echo -e "${SSH_APPUSER//_/\\n}" | sudo tee /builds/homework/example/docker-monolith/infra/ansible/appuser
+    - chmod u=r,go= /builds/homework/example/docker-monolith/infra/ansible/appuser
+    - cat /builds/homework/example/docker-monolith/infra/ansible/appuser
+
+    - curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    - wget https://releases.hashicorp.com/terraform/0.12.21/terraform_0.12.21_linux_amd64.zip -O /tmp/terraform.zip
+    - sudo unzip -o -d /usr/local/bin/ /tmp/terraform.zip
+    - python get-pip.py
+    - pip install requests google-auth ansible
+    - terraform --version
+    - ansible --version
+    - ls -l
+
+  script:
+    - echo 'Creating instances'
+    - cd ./docker-monolith/infra/terraform
+    - terraform init
+#    - terraform plan
+    - terraform apply -auto-approve -var-file terraform.tfvars.example
+#    - ping -c 10 8.8.8.8
+#    - ping -c 10 $(terraform output ext_ip | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}")
+    - hostname
+    - ssh -i /builds/homework/example/docker-monolith/infra/ansible/appuser -o "StrictHostKeyChecking=no" appuser@$(terraform output ext_ip | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}") hostname
+    - echo 'Provisioning docker and container'
+
+    - cd ../ansible
+    - cat /builds/homework/example/docker-monolith/infra/ansible/appuser
+    - ls -la /builds/homework/example/docker-monolith/infra/ansible/
+    #- ls -la /root/.ssh/
+    #- python dynamic-inventory.py
+
+    - ansible-inventory --list
+
+#    - sudo ansible -m ping reddit-app-0 -vvvv
+    - ansible-playbook install-docker.yml -vvv
+#    - echo $HUB_LOGIN
+#    - echo ${HUB_PASSWORD}
+    - ansible-playbook run-docker-image.yml -vvv --extra-vars "version=2.$CI_PIPELINE_ID hub_login=$HUB_LOGIN hub_password=$HUB_PASSWORD"
+  environment:
+    name: dev
+    url: http://dev.example.com
+
+  after_script:
+    - cd ./docker-monolith/infra/terraform
+    - terraform destroy -auto-approve
+
+branch review:
+  stage: review
+  script: echo "Deploy to $CI_ENVIRONMENT_SLUG"
+  environment:
+    name: branch/$CI_COMMIT_REF_NAME
+    url: http://$CI_ENVIRONMENT_SLUG.example.com
+  only:
+    - branches
+  except:
+    - master
+
+staging:
+  stage: stage
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: stage
+    url: http://beta.example.com
+
+production:
+  stage: production
+  when: manual
+  only:
+    - /^\d+\.\d+\.\d+/
+  script:
+    - echo 'Deploy'
+  environment:
+    name: production
+    url: http://example.com

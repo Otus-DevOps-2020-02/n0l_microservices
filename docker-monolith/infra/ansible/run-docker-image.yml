@@ -1,13 +1,24 @@
 ---
 - name: install reddit-app throught docker
-  hosts: all
+  hosts: app
+  vars:
+    hub_login: username
+    hub_password: password
+    version: latest
   become: true
-
   tasks:
+#  - name: tets
+#    shell: echo {{ hub_login }} && echo {{ hub_password }}
+
+  - name: Log in to docker hub
+    docker_login:
+      username: "{{ hub_login }}"
+      password: "{{ hub_password }}"
+
   - name: run docker container
     docker_container:
       name: reddit
       state: started
-      image: xmanchan/otus-reddit:1.0
+      image: "{{ hub_login }}/otus-reddit:{{ version }}"
       published_ports:
         - 9292:9292

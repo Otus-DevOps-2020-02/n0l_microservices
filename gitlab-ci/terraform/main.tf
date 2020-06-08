@@ -12,7 +12,7 @@ provider "google" {
 
 resource "google_compute_instance" "app" {
   count = var.count_instance
-  name         = "reddit-app-${count.index}"
+  name         = "runner-${count.index}"
   machine_type = "f1-micro"
   zone         = var.zone
   tags         = ["reddit-app", "docker-host"]
