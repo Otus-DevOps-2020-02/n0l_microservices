@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  blackbox-exporter:
+    volumes:
+      - black_box_config:/config
+volumes:
+    black_box_config:
+      driver_opts:
+        type: none
+        device: /Users/oleg-nov/otus-devops-2020-02/homework/20.practice/n0l_microservices/src
+        o: bind

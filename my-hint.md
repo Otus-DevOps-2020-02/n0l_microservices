@@ -1,3 +1,90 @@
+# Make
+
+Очень полезная однако утилита, которая позволяет автоматизировать рутину.
+
+Если кратко пишутся скрипты, делятся на части и добавляются ключи для вызова итих кусочков.
+
+Можно очень гибко запускать часть скрипта не используя ключи в баш скриптах
+
+http://rus-linux.net/nlib.php?name=/MyLDP/algol/gnu_make/gnu_make_3-79_russian_manual.html
+
+
+
+# Prometeus
+
+#### Установка
+
+1. $ gcloud compute firewall-rules create prometheus-default --allow tcp:9090
+   $ gcloud compute firewall-rules create puma-default --allow tcp:9292
+2. $ export GOOGLE_PROJECT=_ваш-проект_
+3. $ docker-machine create --driver google --google-machine-image https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/family/ubuntu-1604-lts --google-machine-type n1-standard-1 --google-zone europe-west1-b docker-host
+4. $ eval $(docker-machine env docker-host)
+5. $ docker run --rm -p 9090:9090 -d --name prometheus prom/prometheus:v2.1.0 (Возможно перед этим потребуется $ docker login)
+6. http://ext-ip:9090 (ext-ip можно узнать $docker-machine ip docker-host)
+
+#### Понятия
+
+**prometheus_build_info**{**branch**="HEAD",**goversion=**"go1.9.1",**instance=**"localhost:9090", **job=**"prometheus", **revision=**"3a7c51ab70fc7615cd318204d3aa7c078b7c5b20",version="1.8.1"} **1**
+
+- **prometheus_build_info** - название метрики, идентификатор собранной информации.
+- **branch**, **goversion**, **instance**, итд - лейбл, добавляет метаданных метрике, уточняет ее. Использование лейблов дает нам возможность не ограничиваться лишь одним названием метрик для идентификации получаемой информации. Лейблы содержаться в {} скобках и представлены наборами "ключ=значение".
+- 1 - значение метрики, численное значение метрики, либо NaN, если значение недоступно
+
+Targets (цели) - представляют собой системы или процессы, за которыми следит Prometheus. Помним, что Prometheus является pull системой, поэтому он постоянно делает HTTP запросы на имеющиеся у него адреса (endpoints). Посмотрим текущий список целей
+
+#### Настройка
+
+Вся конфигурация Prometheus, в отличие от многих других систем мониторинга, происходит через файлы конфигурации и опции командной строки. Мы определим простой конфигурационный файл для сбора метрик с наших микросервисов. В директории monitoring/prometheus создайте файл prometheus.yml со следующим содержимым
+
+```yml
+---
+global:
+  scrape_interval: '5s'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+        - 'localhost:9090'
+
+  - job_name: 'ui'
+    static_configs:
+      - targets:
+        - 'ui:9292'
+
+  - job_name: 'comment'
+    static_configs:
+      - targets:
+        - 'comment:9292'
+```
+
+В директории prometheus собираем Docker образ:
+
+$ export USER_NAME=username
+$ docker build -t $USER_NAME/prometheus .
+
+Где USER_NAME - ВАШ логин от DockerHub.
+
+#### Healthcheck
+
+Healthcheck-и представляют собой проверки того, что наш сервис здоров и работает в ожидаемом режиме. В нашем случае healthcheck выполняется внутри кода микросервиса и выполняет проверку того, что все сервисы, от которых зависит его работа, ему доступны. Если требуемые для его работы сервисы здоровы, то healthcheck проверка возвращает status = 1, что соответсвует тому, что сам сервис здоров. Если один из нужных ему сервисов нездоров или недоступен, то проверка вернет status = 0.
+
+#### Exporters
+
+Программа, которая делает метрики доступными
+
+для сбора Prometheus. Дает возможность конвертировать метрики в нужный для Prometheus формат. Используется когда нельзя поменять код приложения Примеры: PostgreSQL, RabbitMQ, Nginx, Node exporter, cAdvisor
+
+Предварительно нужно запустить экспортер, можно в контейнере или на хосте. Также экспортеры делятся по типу whitebox - умеют извлекать попадать внутрь приложения и извлекать метриеки. Blackbox -  могут пощупать приложение снаружи и определить приходит ли код 200 по http и слущает ли приложение на определенном порту
+
+Экспортеры добавляются в prometheus.yml
+
+Подробно про blackbox тут https://kamaok.org.ua/?p=3281
+
+
+
+
+
 # GitLab
 
 Комбайн, который позволяет организовать весь процесс разработки, настроить автоматизацию по тестированию и деплою.
@@ -124,7 +211,43 @@ networks:
 
 В файле docker-compose.override.yml можно вносить изменения (чтобы допустим иметь несколько окружений)
 
+Docker Compose по умолчанию читает два файла: docker-compose.yml и docker-compose.override.yml. В файле docker-compose-override.yml можно хранить переопределения для существующих сервисов или определять новые. Чтобы использовать несколько файлов (или файл переопределения с другим именем), необходимо передать -f в docker-compose up (порядок имеет значение):
 
+```
+$ docker-compose up -f my-override-1.yml my-overide-2.yml
+```
+
+Более подробно тут: https://habr.com/ru/company/otus/blog/337688/
+
+
+
+#### Файл окружения
+
+
+Для гарантии передачи переменной среды, необходимо хранить её в файле среды. Назовите файл .env и сохраните в рабочей директории. Docker Compose игнорирует пустые строки (используйте их для лучшей читаемости) и код, начинающийся с # (то есть комментарии). Вы можете присвоить переменные для дальнейшей подстановки, а также задать переменные Compose CLI:
+
+```
+COMPOSE_API_VERSION
+COMPOSE_FILE
+COMPOSE_HTTP_TIMEOUT
+COMPOSE_PROJECT_NAME
+DOCKER_CERT_PATH
+DOCKER_HOST
+DOCKER_TLS_VERIFY
+```
+
+
+Пример файла среды:
+
+```
+# ./.env 
+# для нашей промежуточной среды
+
+COMPOSE_API_VERSION=2
+COMPOSE_HTTP_TIMEOUT=45
+DOCKER_CERT_PATH=/mycerts/docker.crt
+EXTERNAL_PORT=5000
+```
 
 # Docker
 
@@ -1398,9 +1521,11 @@ $ git rebase -i HEAD~4
 
 #### Полезные дополнения
 
-```
- $ git log --grep=XXX позволяет выполнять поиск по сообщениям в коммитах
- $ git log --graph --abbrev-commit --decorate --all --oneline - наглядно показать историю
+```bash
+ $ git log --grep=XXX #позволяет выполнять поиск по сообщениям в коммитах
+ $ git log --graph --abbrev-commit --decorate --all --oneline  #наглядно показать историю
+ $ git branch -vv -a #показывает все ветки, включая на удаленном сервере
+ $ git checkout -b serverfix remotes/origin/gitlab-ci-1 #создает новую ветку serverfix наследуясь от ветки с удаленного сервера gitlab-ci-1
 ```
 
 #### Инструменты

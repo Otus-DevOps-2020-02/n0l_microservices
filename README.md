@@ -3,6 +3,16 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.20
+
+1. Развернули систему мониторинга Prometheus
+2. Посмотрели как можно монитрить состояние сервисов
+3. Exporters blackbox и whitebox
+4. Мониторинг mongoDB с помощью percona/mongodb_exporter
+5. Настройка монитонга сервиов с помощью prom/blackbox-exporter
+6. Как писать Makefile
+7. https://hub.docker.com/u/xmanchan
+
 #### ex.19
 
 1. Развертывание и первичная настройка gitlab
@@ -65,29 +75,5 @@ n0l microservices repository
 6. c помощью playbook ansible установить docker c  помощью другого запустить контейнер из docker hub
 7. пакера, который делает образ с уже установленным Docker
 
-- 
 
-
-
-docker build -t xmanchan/post:1.0 ./post-py
-
-docker build -t xmanchan/comment:1.0 ./comment
-
-docker build -t xmanchan/ui:1.0 ./ui
-
-
-
-
-
-
-
-
-
-docker run -d --network=reddit --network-alias=post_db --network-alias=comment_db mongo:latest
-
-docker run -d --network=reddit --network-alias=post xmanchan/post:1.0
-
-docker run -d --network=reddit --network-alias=comment xmanchan/comment:1.0
-
-docker run -d --network=reddit -p 9292:9292 xmanchan/ui:1.0
 

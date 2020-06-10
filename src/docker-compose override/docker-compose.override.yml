@@ -14,16 +14,16 @@ services:
 
 volumes:
     ui:
-        driver_opts:
-           type: none
-           device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/ui
-           o: bind
+      driver_opts:
+         type: none
+         device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/ui
+         o: bind
 
     comment:
-        driver_opts:
-           type: none
-           device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/comment
-           o: bind
+      driver_opts:
+         type: none
+         device:  /Users/oleg-nov/otus-devops-2020-02/homework/17.practice/n0l_microservices/src/comment
+         o: bind
     post-py:
       driver_opts:
         type: none
