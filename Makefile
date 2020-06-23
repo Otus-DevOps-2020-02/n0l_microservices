@@ -23,7 +23,10 @@ build_mongodbexporter:
 build_blackbox-exporter:
 	cd ./monitoring/blackbox-exporter && bash ./docker_build.sh
 
-build_all: build_post build_comment build_ui build_mongodbexporter build_blackbox-exporter build_prometheus
+build_alert_manager:
+	cd ./monitoring/alertmanager && bash ./docker_build.sh
+
+build_all: build_post build_comment build_ui build_mongodbexporter build_blackbox-exporter build_prometheus build_alert_manager
 
 ### start env ####
 
@@ -57,4 +60,7 @@ push_mongodbexporter:
 push_blackbox-exporter:
 	docker push ${USER_NAME}/blackbox-exporter:${VER-BLACKBOX-EXPORTER}
 
-push_all: push_comment push_post push_ui push_mongodbexporter push_blackbox-exporter push_prometheus
+push_alert_manager:
+	docker push ${USER_NAME}/alertmanage:${VER_ALERT_MGR}
+
+push_all: push_comment push_post push_ui push_mongodbexporter push_blackbox-exporter push_prometheus push_alert_manager
