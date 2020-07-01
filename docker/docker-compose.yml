@@ -2,6 +2,8 @@ version: '3.3'
 services:
   post_db:
     image: mongo:3.2
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     volumes:
       - post_db:/data/db
     networks:
@@ -11,25 +13,58 @@ services:
           - comment_db
   ui:
     image: ${USERNAME}/ui:${VER}
+#    image: artemkin/ui
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+      - POST_SERVICE_HOST=post
+      - POST_SERVICE_PORT=5000
+      - COMMENT_SERVICE_HOST=comment
+      - COMMENT_SERVICE_PORT=9292
     ports:
       - 9292:${EXT_PORT}/tcp
+    depends_on:
+      - post
     networks:
       - front_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
   post:
     image: ${USERNAME}/post:${VER}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       - front_net
       - back_net
+    depends_on:
+      - post_db
+    ports:
+      - "5000:5000"
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
   comment:
     image: ${USERNAME}/comment:${VER}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       - front_net
       - back_net
 volumes:
   post_db:
+
 networks:
   front_net:
-    external: true
+#    external: true
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
   back_net:
-    external: true
-  reddit:
+#    external: true
+    ipam:
+      config:
+        - subnet: 10.0.2.0/24

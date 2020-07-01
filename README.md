@@ -3,6 +3,23 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.23
+
+1. Логирование Docker контейнеров c помощью Elastic стека (ElasticSearch, Fluentd, Kibana)
+2. Структурированные логи (Фильтры, поиск по полям)
+3. Неструктурированные логи (Парсинг с помощью регулярных выражений, grok-шаблоны)
+4. Работа с Zipkin отслеживание запроса
+
+#### ex.21
+
+1. Мониторинг Docker контейнеров с помощью [cAdvisor](https://github.com/google/cadvisor)
+2. Grafana, работа с готовыми дашбордами, создание собственных
+3. Гистограммы, чуть-чуть статистики
+4. Алертинг через Alertmanager
+5. Интеграция алертинга со slack
+6. Поправил make файл. добавил сборку alertmanager
+7. https://hub.docker.com/u/xmanchan
+
 #### ex.20
 
 1. Развернули систему мониторинга Prometheus
