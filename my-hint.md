@@ -1,3 +1,72 @@
+# Логирование
+
+Логи должны иметь заданную (единую) структуру и содержать необходимую для нормальной эксплуатации данного сервиса информацию о его работе
+
+Неструктурированные логи отличаются отсутствием четкой структуры данных. Также часто бывает, что формат лог-сообщений не подстроен под систему централизованного логирования, что существенно увеличивает затраты вычислительных и временных ресурсов на обработку данных и выделение нужной информации.  Когда приложение или сервис не пишет структурированныелоги, приходится использовать старые добрые регулярные выражения для их парсинга в /docker/fluentd/fluent.conf. Для облегчения задачи парсинга вместо стандартных регулярок можно использовать grok-шаблоны.
+
+- ElasticSearch (TSDB и поисковый движок для хранения данных)
+- Logstash (для агрегации и трансформации данных) В ДЗ тут использовался Fluentd
+- Kibana (для визуализации)
+
+Для настройки fluentd потребуетс я конфиг файл пример
+
+```
+<source>
+  @type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+<filter service.post>
+@type parser
+format json
+key_name log
+</filter>
+
+<filter service.ui>
+  @type parser
+  key_name log
+  format grok
+  grok_pattern %{RUBY_LOGGER}
+</filter>
+
+<filter service.ui>
+  @type parser
+  format grok
+  grok_pattern service=%{WORD:service} \| event=%{WORD:event} \| request_id=%{GREEDYDATA:request_id} \| message='%{GREEDYDATA:message}'
+  key_name message
+  reserve_data true
+</filter>
+
+<match *.**>
+  @type copy
+  <store>
+    @type elasticsearch
+    host elasticsearch
+    port 9200
+    logstash_format true
+    logstash_prefix fluentd
+    logstash_dateformat %Y%m%d
+    include_tag_key true
+    type_name access_log
+    tag_key @log_name
+    flush_interval 1s
+  </store>
+  <store>
+    @type stdout
+  </store>
+</match>
+
+```
+
+
+
+#### Zipkin
+
+Удобный инструмент для распределенного трейсинга. Показывет наглядно сколько времени ушло на выполнение запроса какие проиложение учавствовали в выполненни запроса. Где тормоза.
+
+
+
 # Make
 
 Очень полезная однако утилита, которая позволяет автоматизировать рутину.
