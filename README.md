@@ -3,6 +3,11 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.25
+
+1. Знакомство с Kubernetes. Основные сущьности
+2. Прохождение курса по развертыванию вручную  https://github.com/kelseyhightower/kubernetes-the-hard-way
+
 #### ex.23
 
 1. Логирование Docker контейнеров c помощью Elastic стека (ElasticSearch, Fluentd, Kibana)
