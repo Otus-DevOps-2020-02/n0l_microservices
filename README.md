@@ -3,6 +3,16 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.27(по списку 27)
+
+1. Разворачиваем Kubernetes локально с помощью minikube (подробный гайд)
+2. Запуск приложения в minikube (редактирование deployment манефестов, настройка сети, настройка namespace)
+3. Dashboard плангин в minikube
+4. Разворачиваем Kubernetes в Google Kubernetes Engine
+5. Запуск приложения в GKE
+6. Dashboard в GKE
+7. Развернуть Kubenetes-кластер в GKE с помощью Terraform
+
 #### ex.25
 
 1. Знакомство с Kubernetes. Основные сущьности
