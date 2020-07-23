@@ -3,7 +3,34 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
-#### ex.27(по списку 27)
+#### ex.27 (по списку 26)
+
+1. Повторили сетевое взаимодействие подов 
+
+   - ClusterIP - дойти до сервиса можно только изнутри кластера, kube-dns
+
+   - nodePort - клиент снаружи кластера приходит на опубликованный порт
+
+   - LoadBalancer - клиент приходит на облачный (aws elb, Google gclb) ресурс балансировки
+
+   - ExternalName - внешний ресурс по отношению к кластеру
+
+2. Ingress - набор правил внутри кластера Kubernetes, предназначенных для того, чтобы входящие подключения могли достичь сервисов (Services). 
+
+3. Настрока TLS
+
+4. NetworkPolicy - инструмент для декларативного описания потоков трафика. Отметим, что не все сетевые плагины поддерживают политики сети.
+
+5. Хранения данных
+
+   - Volume emptyDir
+   - Volume PersistentDisk
+   - PersistentVolume
+     - PersistentVolumeClaim
+     - PVC + StorageClass
+     - dynamic PVC
+
+#### ex.26 (по списку 27)
 
 1. Разворачиваем Kubernetes локально с помощью minikube (подробный гайд)
 2. Запуск приложения в minikube (редактирование deployment манефестов, настройка сети, настройка namespace)
