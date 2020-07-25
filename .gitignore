@@ -10,3 +10,4 @@ variables.json
 # docker-compose
 .env
 service_account_key.json
+.idea/
