@@ -36,6 +36,7 @@ spec:
 #          pdName: reddit-mongo-disk
 #          fsType: ext4
       - name: mongo-persistent-storage
-        persistentVolumeClaim:
+        emptyDir: {}
+#        persistentVolumeClaim:
 #          claimName: mongo-pvc
-          claimName: mongo-pvc-dynamic
+#          claimName: mongo-pvc-dynamic
