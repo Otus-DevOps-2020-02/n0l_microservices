@@ -1,6 +1,6 @@
-name: ui
+name: mongodb
 version: 1.0.0
-description: OTUS reddit application UI
+description: OTUS reddit application MONGO
 maintainers:
   - name: Oleg Nov
     email: n.ol@mail.ru
