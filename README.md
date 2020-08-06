@@ -3,6 +3,12 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.28
+
+1. Helm и Helm3 - пакетный менеджер для Kubernetes (tiller, Charts, templates)
+2. 
+3. 
+
 #### ex.27 (по списку 26)
 
 1. Повторили сетевое взаимодействие подов 
