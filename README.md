@@ -5,9 +5,10 @@ n0l microservices repository
 
 #### ex.28
 
-1. Helm и Helm3 - пакетный менеджер для Kubernetes (tiller, Charts, templates)
-2. 
-3. 
+1. Helm и Helm3 - пакетный менеджер для Kubernetes (tiller, Charts, templates, _helpers.tpl)
+2. GitLab + Kubernetes (Депрлой в разные окружения, среды production и staging)
+3. Правильный пайплайн
+4. Триггеры
 
 #### ex.27 (по списку 26)
 
