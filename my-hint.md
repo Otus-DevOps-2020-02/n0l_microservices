@@ -50,6 +50,7 @@ kubectl config unset users.foo                       # удалить польз
 
 https://kubernetes.io/ru/docs/reference/kubectl/cheatsheet/
 
+
 # Логирование
 
 Логи должны иметь заданную (единую) структуру и содержать необходимую для нормальной эксплуатации данного сервиса информацию о его работе
