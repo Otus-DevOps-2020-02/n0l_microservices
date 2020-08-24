@@ -3,6 +3,28 @@ n0l microservices repository
 
 [![Build Status](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices.svg?branch=master)](https://travis-ci.com/Otus-DevOps-2020-02/n0l_microservices)
 
+#### ex.29
+
+1. Развернули Prometheus с помощью Helm
+
+2. Таргеты для сбора метрик найдены с помощью service discovery
+
+3. настройки для безопасного доступа к метрикам htpps
+
+4. kubestate-metrics информация о сущьностях k8s (деплойменты, репликасеты)
+
+5. Метрики приложений используем ServiceDiscovery для обнаружения приложений, запущенных в k8s
+
+6. Развернули grafana с помощью helm
+
+7. Различнве дашборды для отслеживания метрик k8s, метрик приложений и сводные графики
+
+8. Grafana Templating (При большом количестве сред и при их динамичном
+
+   изменении имеет смысл сделать динамичной и удобно настройку
+
+   наших дашбордов в Grafana.)
+
 #### ex.28
 
 1. Helm и Helm3 - пакетный менеджер для Kubernetes (tiller, Charts, templates, _helpers.tpl)
